@@ -1,6 +1,6 @@
 {
     "name": "@paychex/adapter-node",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A data adapter that uses the NodeJS built-in https library to convert a Request into a Response.",
     "main": "index.js",
     "type": "module",
