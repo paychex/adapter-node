@@ -1,12 +1,20 @@
 import https from 'https';
-import get from 'lodash/get.js';
-import set from 'lodash/set.js';
-import filter from 'lodash/filter.js';
-import flatten from 'lodash/flatten.js';
-import isEmpty from 'lodash/isEmpty.js';
-import isString from 'lodash/isString.js';
-import merge from 'lodash/merge.js';
-import attempt from 'lodash/attempt.js';
+
+import {
+    get,
+    set,
+    filter,
+    flatten,
+    isEmpty,
+    isString,
+    merge,
+    attempt,
+} from 'lodash-es';
+
+import { data } from '@paychex/core/dist/esm/types.mjs';
+
+class Request extends data.Request {}
+class Response extends data.Response {}
 
 const XSSI = /^\)]\}',?\n/;
 const SUCCESS = /^2\d\d$/;
@@ -80,23 +88,33 @@ async function parseData(type, response) {
 }
 
 /**
+ * ### esm
+ *
+ * ```js
+ * import { node } from '@paychex/adapter-node';
+ * ```
+ *
+ * ### cjs
+ *
+ * ```js
+ * const { node } = require('@paychex/adapter-node');
+ * ```
+ *
  * @module index
  */
 
 /**
  * A data adapter that uses the NodeJS built-in [https](https://nodejs.org/api/https.html) library to convert a Request into a Response. Can be passed to the [@paychex/core](https://github.com/paychex/core) createDataLayer factory method to enable data operations on NodeJS.
  *
- * @static
- * @function node
+ * @async
+ * @function
  * @param {Request} request The Request to convert into a Response.
+ * @returns {Promise.<Response>}
  * @example
- * import nodeAdapter from '@paychex/adapter-node/index.js';
- * import { createDataLayer, createProxy } from '@paychex/core/data/index.js';
- *
- * const proxy = createProxy();
- * const { createRequest, fetch, setAdapter } = createDataLayer(proxy, nodeAdapter);
+ * const proxy = data.createProxy();
+ * const { createRequest, fetch, setAdapter } = data.createDataLayer(proxy, node);
  */
-export default function node(request) {
+export function node(request) {
 
     const response = {
         meta: {
@@ -112,7 +130,7 @@ export default function node(request) {
     };
 
     return new Promise(function RequestPromise(resolve) {
-        let data = '';
+        let body = '';
         const sendDate = new Date();
         const url = new URL(request.url);
         const options = {
@@ -127,10 +145,10 @@ export default function node(request) {
             response.statusText = res.statusMessage;
             res.setEncoding('utf8');
             res.on('data', (chunk) => {
-                data += chunk;
+                body += chunk;
             });
             res.on('end', async () => {
-                response.data = data;
+                response.data = body;
                 await parseData(request.responseType, response);
                 setErrorFromStatus(response);
                 resolve(response);

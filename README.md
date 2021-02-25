@@ -8,12 +8,26 @@ A data adapter that uses the NodeJS built-in [https](https://nodejs.org/api/http
 npm install @paychex/adapter-node
 ```
 
+## Importing
+
+### esm
+
+```js
+import { node } from '@paychex/adapter-node';
+```
+
+### cjs
+
+```js
+const { node } = require('@paychex/adapter-node');
+```
+
 ## Usage
 
 ```js
-import nodeAdapter from '@paychex/adapter-node/index.js';
-import { createDataLayer, createProxy } from '@paychex/core/data/index.js';
+import { data } from '@paychex/core';
+import { node } from '@paychex/adapter-node';
 
-const proxy = createProxy();
-const { createRequest, fetch, setAdapter } = createDataLayer(proxy, nodeAdapter);
+const proxy = data.createProxy();
+const { createRequest, fetch, setAdapter } = data.createDataLayer(proxy, node);
 ```

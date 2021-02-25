@@ -1,8 +1,8 @@
 import https from 'https';
 import expect from 'expect';
 
-import { spy } from '@paychex/core/test/utils.js';
-import node from '../index.js';
+import { spy } from '@paychex/core/test/utils.mjs';
+import { node } from '../index.mjs';
 
 describe('node adapter', () => {
 
