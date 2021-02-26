@@ -23,12 +23,8 @@ module.exports = [
     // CJS
     {
         input: 'index.mjs',
-        external: ['lodash', '@paychex/core'],
+        external: ['lodash-es', '@paychex/core'],
         plugins: [
-            replace({
-                'lodash-es': 'lodash',
-                preventAssignment: true,
-            }),
             nodeResolve(),
             commonjs({
                 include: /node_modules/,
@@ -39,6 +35,9 @@ module.exports = [
             format: "cjs",
             exports: "named",
             sourcemap: true,
+            paths: {
+                'lodash-es': 'lodash'
+            }
         },
     },
 ];
