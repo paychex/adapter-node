@@ -43,8 +43,8 @@
         "rimraf": "^3.0.2",
         "rollup": "^2.39.1"
     },
-    "dependencies": {
-        "@paychex/core": "^2.0.4",
+    "peerDependencies": {
+        "@paychex/core": "^2.1.0",
         "lodash-es": "^4.17.21"
     }
 }

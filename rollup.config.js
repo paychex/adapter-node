@@ -5,6 +5,7 @@ module.exports = [
     // ESM and CJS
     {
         input: 'index.mjs',
+        external: ['@paychex/core', 'lodash-es'],
         plugins: [
             nodeResolve(),
             commonjs({
