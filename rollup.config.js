@@ -1,11 +1,11 @@
 const { nodeResolve } = require("@rollup/plugin-node-resolve");
 const commonjs = require('@rollup/plugin-commonjs');
-const replace = require('@rollup/plugin-replace');
 
 module.exports = [
     // ESM
     {
         input: 'index.mjs',
+        treeshake: false,
         external: ['lodash-es', '@paychex/core'],
         plugins: [
             nodeResolve(),
@@ -23,6 +23,7 @@ module.exports = [
     // CJS
     {
         input: 'index.mjs',
+        treeshake: false,
         external: ['lodash-es', '@paychex/core'],
         plugins: [
             nodeResolve(),

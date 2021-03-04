@@ -11,10 +11,7 @@ import {
     attempt,
 } from 'lodash-es';
 
-import { data } from '@paychex/core/dist/esm/types.mjs';
-
-class Request extends data.Request {}
-class Response extends data.Response {}
+import '@paychex/core/types/data.mjs';
 
 const XSSI = /^\)]\}',?\n/;
 const SUCCESS = /^2\d\d$/;
