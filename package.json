@@ -8,6 +8,14 @@
         "dist",
         "docs"
     ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/paychex/adapter-node.git"
+    },
+    "bugs": {
+        "url": "https://github.com/paychex/adapter-node/issues"
+    },
+    "homepage": "https://paychex.github.io/adapter-node/",
     "scripts": {
         "test": "mocha --recursive",
         "coverage": "c8 --reporter=html mocha --recursive",
