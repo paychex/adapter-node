@@ -1,5 +1,6 @@
 const { nodeResolve } = require("@rollup/plugin-node-resolve");
 const commonjs = require('@rollup/plugin-commonjs');
+const pkg = require('./package.json');
 
 module.exports = [
     // ESM
@@ -18,6 +19,7 @@ module.exports = [
             format: "esm",
             exports: "named",
             sourcemap: true,
+            banner: `/* ${pkg.name} v${pkg.version} */`,
         },
     },
     // CJS
@@ -36,6 +38,7 @@ module.exports = [
             format: "cjs",
             exports: "named",
             sourcemap: true,
+            banner: `/* ${pkg.name} v${pkg.version} */`,
             paths: {
                 'lodash-es': 'lodash'
             }
