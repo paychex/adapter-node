@@ -1,12 +1,12 @@
-import https from 'https';
-import expect from 'expect';
+import * as https from 'https';
+import * as expect from 'expect';
 
-import { spy } from '@paychex/core/test/utils.mjs';
-import { node } from '../index.mjs';
+import { spy } from '@paychex/core/test';
+import { node, Request } from '../index';
 
 describe('node adapter', () => {
 
-    let request;
+    let request: Request;
     beforeEach(() => {
         request = {
             ignore: {},
@@ -18,7 +18,11 @@ describe('node adapter', () => {
         };
     });
 
-    let req, res, orig, args = {};
+    let req: any,
+        res: any,
+        orig: any,
+        args: Record<string, any> = {};
+
     beforeEach(() => {
         req = {
             on: spy(),
@@ -33,15 +37,17 @@ describe('node adapter', () => {
             setEncoding: spy(),
         };
         orig = https.request;
-        https.request = spy().invokes((url, options, callback) => {
-            args.url = url;
-            args.options = options;
-            args.callback = callback;
-            return req;
+        Object.assign(https, {
+            request: spy().invokes((url, options, callback) => {
+                args.url = url;
+                args.options = options;
+                args.callback = callback;
+                return req;
+            })
         });
     });
 
-    afterEach(() => https.request = orig);
+    afterEach(() => Object.assign(https, { request: orig }));
 
     it('sets meta.cached', (done) => {
         const past = '2000-01-01T00:00:00.000Z';
@@ -98,7 +104,7 @@ describe('node adapter', () => {
         const document = Object.create(null);
         const chunk = `<?xml version="1.0"><root />`;
         const parseFromString = spy().returns(document);
-        globalThis.DOMParser = spy().returns({ parseFromString });
+        globalThis.DOMParser = spy().returns({ parseFromString }) as any;
         res.headers['content-type'] = 'text/xml'
         request.responseType = 'document';
         node(request).then(rsp => {

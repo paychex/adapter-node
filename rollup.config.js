@@ -1,21 +1,26 @@
 const { nodeResolve } = require("@rollup/plugin-node-resolve");
 const commonjs = require('@rollup/plugin-commonjs');
+const typescript = require('@rollup/plugin-typescript');
+
 const pkg = require('./package.json');
 
 module.exports = [
     // ESM
     {
-        input: 'index.mjs',
+        input: 'index.ts',
         treeshake: false,
-        external: ['lodash-es', '@paychex/core'],
+        external: ['lodash', '@paychex/core'],
         plugins: [
             nodeResolve(),
             commonjs({
                 include: /node_modules/,
+            }),
+            typescript({
+                tsconfig: './tsconfig.json',
             })
         ],
         output: {
-            dir: "dist/esm",
+            file: pkg.module,
             format: "esm",
             exports: "named",
             sourcemap: true,
@@ -24,24 +29,24 @@ module.exports = [
     },
     // CJS
     {
-        input: 'index.mjs',
+        input: 'index.ts',
         treeshake: false,
-        external: ['lodash-es', '@paychex/core'],
+        external: ['lodash', '@paychex/core'],
         plugins: [
             nodeResolve(),
             commonjs({
                 include: /node_modules/,
+            }),
+            typescript({
+                tsconfig: './tsconfig.json',
             })
         ],
         output: {
-            dir: "dist/cjs",
+            file: pkg.main,
             format: "cjs",
             exports: "named",
             sourcemap: true,
             banner: `/*! ${pkg.name} v${pkg.version} */`,
-            paths: {
-                'lodash-es': 'lodash'
-            }
         },
     },
 ];

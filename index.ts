@@ -1,4 +1,20 @@
-import https from 'https';
+/**
+ * ### esm
+ *
+ * ```js
+ * import { node } from '@paychex/adapter-node';
+ * ```
+ *
+ * ### cjs
+ *
+ * ```js
+ * const { node } = require('@paychex/adapter-node');
+ * ```
+ *
+ * @module main
+ */
+
+import * as https from 'https';
 
 import {
     get,
@@ -9,21 +25,24 @@ import {
     isString,
     merge,
     attempt,
-} from 'lodash-es';
+} from 'lodash';
 
-import '@paychex/core/types/data.mjs';
+import type { HeadersMap, Request, Response } from '@paychex/core/types/data';
+export type { Request, Response };
+
+type Header = Record<string, string>;
 
 const XSSI = /^\)]\}',?\n/;
 const SUCCESS = /^2\d\d$/;
 
-function safeParseJSON(response) {
+function safeParseJSON(response: Response): void {
     const json = String(response.data);
     response.data = JSON.parse(json.replace(XSSI, ''));
 }
 
-function setCached(response, sendDate) {
+function setCached(response: Response, sendDate: Date): void {
     const date = new Date(get(response, 'meta.headers.date'));
-    if (!isNaN(date)) { // determines if Date is valid
+    if (!isNaN(Number(date))) { // determines if Date is valid
         // Date header is only accurate to the nearest second
         // so we round both down to the second before comparing
         const responseTime = Math.floor(date.getTime() / 1000);
@@ -32,37 +51,37 @@ function setCached(response, sendDate) {
     }
 }
 
-function setErrorFromStatus(response) {
+function setErrorFromStatus(response: Response): void {
     const hasError = get(response, 'meta.error', false);
-    const isFailure = !SUCCESS.test(get(response, 'status', 0));
+    const isFailure = !SUCCESS.test(String(get(response, 'status', 0)));
     set(response, 'meta.error', hasError || isFailure);
 }
 
-function toStringArray(value) {
+function toStringArray(value: string | string[]): string {
     return filter(flatten([value]), isString).join(', ');
 }
 
-function toKeyValuePair(name) {
+function toKeyValuePair(name: string): [string, string] {
     return [name, toStringArray(this[name])];
 }
 
-function hasHeaderValue([, values]) {
+function hasHeaderValue([, values]: [any, string]): boolean {
     return !isEmpty(values);
 }
 
-function setHeaderValue(result, [name, value]) {
+function setHeaderValue(result: Header, [name, value]: [string, string]): Header {
     result[name] = value;
     return result;
 }
 
-function transformHeaders(headers) {
+function transformHeaders(headers: HeadersMap): Header {
     return Object.keys(headers)
         .map(toKeyValuePair, headers)
         .filter(hasHeaderValue)
         .reduce(setHeaderValue, Object.create(null));
 }
 
-async function parseData(type, response) {
+async function parseData(type: XMLHttpRequestResponseType, response: Response) {
     switch (String(type).toLowerCase()) {
         case '':
         case 'json':
@@ -85,35 +104,19 @@ async function parseData(type, response) {
 }
 
 /**
- * ### esm
- *
- * ```js
- * import { node } from '@paychex/adapter-node';
- * ```
- *
- * ### cjs
- *
- * ```js
- * const { node } = require('@paychex/adapter-node');
- * ```
- *
- * @module index
- */
-
-/**
  * A data adapter that uses the NodeJS built-in [https](https://nodejs.org/api/https.html) library to convert a Request into a Response. Can be passed to the [@paychex/core](https://github.com/paychex/core) createDataLayer factory method to enable data operations on NodeJS.
  *
- * @async
- * @function
- * @param {Request} request The Request to convert into a Response.
- * @returns {Promise.<Response>}
+ * @param request The Request to convert into a Response.
+ * @returns A Promise resolved with the Response.
  * @example
+ * ```js
  * const proxy = data.createProxy();
  * const { createRequest, fetch, setAdapter } = data.createDataLayer(proxy, node);
+ * ```
  */
-export function node(request) {
+export function node(request: Request): Promise<Response> {
 
-    const response = {
+    const response: Response = {
         meta: {
             headers: {},
             messages: [],
@@ -129,13 +132,12 @@ export function node(request) {
     return new Promise(function RequestPromise(resolve) {
         let body = '';
         const sendDate = new Date();
-        const url = new URL(request.url);
-        const options = {
+        const options: https.RequestOptions = {
             method: request.method,
             timeout: request.timeout || 2147483647,
             headers: transformHeaders(request.headers),
         };
-        const req = https.request(url, options, function callback(res) {
+        const req = https.request(request.url, options, function callback(res) {
             merge(response.meta.headers, res.headers);
             setCached(response, sendDate);
             response.status = res.statusCode;
@@ -154,8 +156,9 @@ export function node(request) {
         req.on('error', (e) => {
             response.meta.error = true;
             response.meta.messages = [{
+                data: [],
                 code: e.message,
-                data: []
+                severity: 'ERROR',
             }];
         });
         req.on('timeout', () => {
