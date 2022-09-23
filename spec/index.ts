@@ -38,7 +38,7 @@ describe('node adapter', () => {
         };
         orig = https.request;
         Object.assign(https, {
-            request: spy().invokes((url, options, callback) => {
+            request: spy().invokes((url: string, options: {}, callback: Function) => {
                 args.url = url;
                 args.options = options;
                 args.callback = callback;
