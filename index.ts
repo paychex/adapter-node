@@ -41,7 +41,7 @@ function safeParseJSON(response: Response): void {
 }
 
 function setCached(response: Response, sendDate: Date): void {
-    const date = new Date(get(response, 'meta.headers.date'));
+    const date = new Date(get(response, 'meta.headers.date') as string);
     if (!isNaN(Number(date))) { // determines if Date is valid
         // Date header is only accurate to the nearest second
         // so we round both down to the second before comparing
