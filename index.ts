@@ -98,7 +98,7 @@ async function parseData(type: XMLHttpRequestResponseType, response: Response) {
         case 'document':
             const parser = new DOMParser();
             const responseType = get(response, 'meta.headers.content-type', 'text/html');
-            response.data = parser.parseFromString(response.data, responseType);
+            response.data = parser.parseFromString(response.data, responseType as DOMParserSupportedType);
             break;
     }
 }
